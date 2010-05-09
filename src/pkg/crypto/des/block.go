@@ -1,7 +1,13 @@
 package des
 
+import (
+  "fmt"
+)
+
 func desfunc (src, dst []byte, key [] uint32 ) {
   var left, right, work uint32;
+
+  dumpRKeys("final keys", key);
 
   left  = uint32(src[0])<<24 | uint32(src[1])<<16 | uint32(src[2])<<8 | uint32(src[3])
 	right = uint32(src[4])<<24 | uint32(src[5])<<16 | uint32(src[6])<<8 | uint32(src[7])
@@ -93,6 +99,8 @@ func desfunc (src, dst []byte, key [] uint32 ) {
 func deskey (key []byte, cipher *Cipher) {
   //var m uint32
 
+  dump("initial", key)
+
   var pc1m, pcr uint64
 
   //var pc1m, pcr [56]byte
@@ -111,6 +119,12 @@ func deskey (key []byte, cipher *Cipher) {
        pc1m |= (1 << bit)
     }
   }
+  // DEBUG
+  for bit = 0; bit!=64; bit++ {
+    val := pc1m & (1 << bit)
+    fmt.Printf("%2d => %d\n", bit, val)
+  }
+  // DEBUG 
 
   // generate 16 round keys
 	//for( i = 0; i < 16; i++ ) {
@@ -127,14 +141,26 @@ func deskey (key []byte, cipher *Cipher) {
     first_half := 0xfffffff & pc1m
     secnd_half := 0xfffffff & (pc1m >> 28)
 
+  // DEBUG 
+  //fmt.Printf("%X\n", pc1m)
+  //fmt.Printf("Round %d => %08X || %08X\n", round, first_half, secnd_half) 
+  // DEBUG 
     rotate_by  := totrot[round]
     // DANGER : is this correct?
-    first_rot  := ((first_half << rotate_by) | first_half >> (28 - rotate_by)) & 0xfffffff
-    secnd_rot  := ((secnd_half << rotate_by) | secnd_half >> (28 - rotate_by)) & 0xfffffff
+    //first_rot  := ((first_half << rotate_by) | first_half >> (28 - rotate_by)) & 0xfffffff
+    //secnd_rot  := ((secnd_half << rotate_by) | secnd_half >> (28 - rotate_by)) & 0xfffffff
+    first_rot  := ((first_half >> rotate_by) | first_half << (28 - rotate_by)) & 0xfffffff
+    secnd_rot  := ((secnd_half >> rotate_by) | secnd_half << (28 - rotate_by)) & 0xfffffff
     // DANGER 
 
+  // DEBUG 
+  //fmt.Printf("Round %d => %08X || %08X\n", round, first_rot, secnd_rot) 
+  // DEBUG 
     pcr = first_rot | (secnd_rot << 28)
 
+  // DEBUG 
+ fmt.Printf("%02d %056b\n", round, pcr)
+  // DEBUG 
 
     //Compression Permutation
     // pick 48 out of 56 bits...
@@ -154,6 +180,8 @@ func deskey (key []byte, cipher *Cipher) {
     cipher.dec[30-i] = cipher.enc[i]
     cipher.dec[31-i] = cipher.enc[i+1]
   }
+  
+  dumpRKeys("before cooking", cipher.enc)
 
 	cipher.enc = cookey(cipher.enc);
   cipher.dec = cookey(cipher.dec);
@@ -186,6 +214,21 @@ func cookey (rawkey []uint32) []uint32 {
   }
 
   return cooked_keys
+}
+
+func dumpRKeys (mes string, key [] uint32) {
+  println(mes)
+  for i, k := range(key) {
+    fmt.Printf("%2d => %08X\n", i, k)
+  }
+
+}
+func dump (mes string, bytes []byte) {
+  println(mes)
+  for _,b := range(bytes) {
+    fmt.Printf("0x%0X ", b)
+  }
+  println("")
 }
 
 
