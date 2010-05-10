@@ -97,18 +97,13 @@ func desfunc (src, dst []byte, key [] uint32 ) {
 }
 
 func deskey (key []byte, cipher *Cipher) {
-  //var m uint32
 
-  dump("initial", key)
+  // DEBUG
+  // dump("initial", key)
+  // DEBUG
 
   var pc1m, pcr uint64
 
-  //var pc1m, pcr [56]byte
-  //var kn [32] uint32
-
-  //register int i, j, l, m, n;
-	//unsigned char pc1m[56], pcr[56];
-	//unsigned long kn[32];
 
   var bit uint
 	for bit = 0; bit < 56; bit++  {
@@ -120,49 +115,48 @@ func deskey (key []byte, cipher *Cipher) {
     }
   }
   // DEBUG
-  for bit = 0; bit!=64; bit++ {
-    val := pc1m & (1 << bit)
-    fmt.Printf("%2d => %d\n", bit, val)
-  }
+  // for bit = 0; bit!=64; bit++ {
+  //  val := pc1m & (1 << bit)
+  //  fmt.Printf("%2d => %d\n", bit, val)
+  // }
   // DEBUG 
 
-  // generate 16 round keys
-	//for( i = 0; i < 16; i++ ) {
+  // Generate 16 round keys
+  // round keys are 64 bit and stored in two 32 bit values.
+  // This is due to historical reasons. The code this port is 
+  // based upon is oldish C code from a time where 32 bit was
+  // 'long long long long long int' :)
+  // This should be changed in near futture avoid dragging around
+  // an implementation artefact.
 	for round := 0; round < 16; round++  {
-		//if( edf == DE1 ) m = (15 - i) << 1;
-		//else m = i << 1;
 
     m:= round << 1
     n:= m+1
 
     cipher.enc[m], cipher.enc[n] = 0,0 // Shouldn't need to zero out keys, ... would anyone reuse cipher?
+                                       // AES impl has a `reset` function for the cipher ...
 
     // Two 28 bit key halfs are rotated according to totrot...
-    first_half := 0xfffffff & pc1m
+    first_half := 0xfffffff &  pc1m
     secnd_half := 0xfffffff & (pc1m >> 28)
 
-  // DEBUG 
-  //fmt.Printf("%X\n", pc1m)
-  //fmt.Printf("Round %d => %08X || %08X\n", round, first_half, secnd_half) 
-  // DEBUG 
     rotate_by  := totrot[round]
     // DANGER : is this correct?
-    //first_rot  := ((first_half << rotate_by) | first_half >> (28 - rotate_by)) & 0xfffffff
-    //secnd_rot  := ((secnd_half << rotate_by) | secnd_half >> (28 - rotate_by)) & 0xfffffff
     first_rot  := ((first_half >> rotate_by) | first_half << (28 - rotate_by)) & 0xfffffff
     secnd_rot  := ((secnd_half >> rotate_by) | secnd_half << (28 - rotate_by)) & 0xfffffff
     // DANGER 
 
-  // DEBUG 
-  //fmt.Printf("Round %d => %08X || %08X\n", round, first_rot, secnd_rot) 
-  // DEBUG 
+    // DEBUG 
+    //fmt.Printf("Round %d => %08X || %08X\n", round, first_rot, secnd_rot) 
+    // DEBUG 
+
     pcr = first_rot | (secnd_rot << 28)
 
-  // DEBUG 
- fmt.Printf("%02d %056b\n", round, pcr)
-  // DEBUG 
+    // DEBUG 
+    // fmt.Printf("%02d %056b\n", round, pcr)
+    // DEBUG 
 
-    //Compression Permutation
+    // Compression Permutation
     // pick 48 out of 56 bits...
 
 		for bit = 0; bit < 24; bit++  {
@@ -216,6 +210,7 @@ func cookey (rawkey []uint32) []uint32 {
   return cooked_keys
 }
 
+// DEBUG
 func dumpRKeys (mes string, key [] uint32) {
   println(mes)
   for i, k := range(key) {
@@ -230,5 +225,6 @@ func dump (mes string, bytes []byte) {
   }
   println("")
 }
+// DEBUG
 
 
