@@ -1,0 +1,4 @@
+* change from 2 * 32 bit based code to using 64 bit datatypes for 48/56 bit datastructures
+* 2DES, 3DES
+* more testing
+* package
