@@ -85,9 +85,9 @@ func (c *DES) Decrypt(src, dst []byte) {
 }
 func (c *DES3) Decrypt(src, dst []byte) {
   intermediate := make([]byte, 8)
-  desfunc(src, dst,          c.des1.dec)
+  desfunc(src, dst,          c.des3.dec)
   desfunc(dst, intermediate, c.des2.enc)
-  desfunc(intermediate, dst, c.des3.dec)
+  desfunc(intermediate, dst, c.des1.dec)
 }
 
 func (c *DES2) Decrypt(src, dst []byte) {

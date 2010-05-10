@@ -1,6 +1,9 @@
 * change from 2 * 32 bit based code to using 64 bit datatypes for 48/56 bit datastructures
+* check key parity and weak keys
+* key generation? w/ parity
 * more testing
 * package
+* retail mac?
 
 done 
 Mon May 10 23:01:50 CEST 2010
