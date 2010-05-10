@@ -6,9 +6,9 @@ import (
 
 func desfunc (src, dst []byte, key [] uint32 ) {
   var left, right, work uint32;
-
-  dumpRKeys("final keys", key);
-
+  // DEBUG
+  //dumpRKeys("final keys", key);
+  // DEBUG
   left  = uint32(src[0])<<24 | uint32(src[1])<<16 | uint32(src[2])<<8 | uint32(src[3])
 	right = uint32(src[4])<<24 | uint32(src[5])<<16 | uint32(src[6])<<8 | uint32(src[7])
 
@@ -96,7 +96,7 @@ func desfunc (src, dst []byte, key [] uint32 ) {
   return;
 }
 
-func deskey (key []byte, cipher *Cipher) {
+func deskey (key []byte, cipher *DES) {
 
   // DEBUG
   // dump("initial", key)
@@ -174,8 +174,9 @@ func deskey (key []byte, cipher *Cipher) {
     cipher.dec[30-i] = cipher.enc[i]
     cipher.dec[31-i] = cipher.enc[i+1]
   }
-  
-  dumpRKeys("before cooking", cipher.enc)
+  // DEBUG 
+  // dumpRKeys("before cooking", cipher.enc)
+  // DEBUG 
 
 	cipher.enc = cookey(cipher.enc);
   cipher.dec = cookey(cipher.dec);
