@@ -1,10 +1,11 @@
 
-
 package des
+
 import (
   "os"
   "strconv"
 )
+
 type DES struct{
   enc [] uint32
   dec [] uint32
@@ -57,7 +58,9 @@ func NewDES2Cipher(key []byte) (*DES2, os.Error) {
   } else {
     return &DES2{des3}, nil
   }
-  return nil, nil
+  // can't happen.
+  // compiler "bug" complains about no return stmt.
+  return nil, nil 
 }
 
 func NewDES3Cipher(key []byte) (*DES3, os.Error) {
@@ -76,6 +79,9 @@ func newDES3Cipher(key []byte) (*DES3, os.Error) {
   // this creates both 2DES and 3DES ciphers,
   // key length & parity checks are performed in the
   // public methods.
+  //
+  // no sanity length checks, this is an internal method and will lead
+  // to out-of-bounds in case it's abused internally.
 
   for i := range(keys) {
     switch (i) {
@@ -113,7 +119,9 @@ func (c *DES3) BlockSize() int {
 }
 
 // Encrypt encrypts the first block in src into dst.
-// Src and dst may point at the same memory.
+// Src and dst may point at the same memory, i.e. this
+// function works in place, though you probably wouldn't
+// use it directly anyhow.
 func (c *DES) Encrypt(src, dst []byte) {
   desfunc(src, dst, c.enc)
 }

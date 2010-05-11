@@ -91,9 +91,51 @@ func TestParity (t *testing.T) {
       t.Errorf("Parity of %X should be even!", b)
     }
   }
+}
 
 
+func TestGenerateKey (t *testing.T) {
+  for i:=0; i!=1000; i++ {
+    // 1DES
+    if key, err := GenerateDESKey(); err != nil {
+      t.Errorf("Error generating key!")
+    } else {
+      if 8 != len(key) {
+        t.Errorf("Wrong key length for generated 1DES key: %d", len(key));
+      }
 
+      if _, ok := checkParityBytes(key); ok != true {
+        t.Errorf(" 1DES Key with incorrect parity generated!")
+      }
+    } // else
+
+    // 2DES
+    if key, err := GenerateDES2Key(); err != nil {
+      t.Errorf("Error generating key!")
+    } else {
+      if 16 != len(key) {
+        t.Errorf("Wrong key length for generated 2DES key: %d", len(key));
+      }
+
+      if _, ok := checkParityBytes(key); ok != true {
+        t.Errorf("2DES Key with incorrect parity generated!")
+      }
+    } // else
+
+    // 3DES
+    if key, err := GenerateDES3Key(); err != nil {
+      t.Errorf("Error generating key!")
+    } else {
+      if 24 != len(key) {
+        t.Errorf("Wrong key length for generated 3DES key: %d", len(key));
+      }
+
+      if _, ok := checkParityBytes(key); ok != true {
+        t.Errorf("3DES Key with incorrect parity generated!")
+      }
+    } // else
+
+  } // for
 }
 
 

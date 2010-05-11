@@ -1,12 +1,13 @@
 * weak keys
-* key generation? w/ parity
 * more testing
 * package
 * change from 2 * 32 bit based code to using 64 bit datatypes for 48/56 bit datastructures
-* retail mac?
+* retail mac? key wrapping? what other ancillary functions?
 
 done 
-Mon May 10 23:01:50 CEST 2010
-* 2DES, 3DES
+Tue May 11 18:09:13 CEST 2010
+* key generation? w/ parity
 Tue May 11 14:26:27 CEST 2010
 * check key parity
+Mon May 10 23:01:50 CEST 2010
+* 2DES, 3DES
