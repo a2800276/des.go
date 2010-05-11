@@ -24,6 +24,7 @@ var (
   ciphr3= []byte {0xde, 0x0b, 0x7c, 0x06, 0xae, 0x5e, 0x0e, 0xd5}
 
 
+  key_parity_error = []byte {0x01, 0x23, 0x45, 0x67, 0x89, 0xac, 0xcd, 0xef}
 
 
   oddParityBytes = []byte {0x01, 0x02, 0x04, 0x07, 0xfe}
@@ -31,7 +32,7 @@ var (
 )
 
 func TestEnc(t *testing.T){
-  c := NewDESCipher(key)
+  c, _ := NewDESCipher(key)
   result := make([]byte,8)
   c.Encrypt(plain, result)
   for _,b := range result {
@@ -40,7 +41,7 @@ func TestEnc(t *testing.T){
   
   println()
 
-  c2 := NewDES2Cipher(key2)
+  c2,_ := NewDES2Cipher(key2)
   c2.Encrypt(plain, result)
    for _,b := range result {
     fmt.Printf("%02X ", b)
@@ -48,7 +49,7 @@ func TestEnc(t *testing.T){
 
   println()
 
-  c3 := NewDES2Cipher(key3)
+  c3,_ := NewDES3Cipher(key3)
   c3.Encrypt(plain, result)
    for _,b := range result {
     fmt.Printf("%02X ", b)
@@ -56,6 +57,26 @@ func TestEnc(t *testing.T){
 }
 func TestDec(t *testing.T){}
 
+
+func TestSanity (t *testing.T) {
+  if _, error := NewDESCipher(nil); error == nil {
+    t.Errorf("nil key should result in error")
+  }
+  // key too short
+  if _, error := NewDESCipher(oddParityBytes); error == nil {
+    t.Errorf("Incorrect key length should result in error")
+  }
+
+  // key des2 too long
+  if _,error := NewDES2Cipher(key3); error == nil {
+    t.Errorf("Incorrect key length should result in error, key too long for 2DES")
+  }
+
+  if _, error := NewDESCipher(key_parity_error); error == nil {
+    t.Errorf("Incorrect key length should result in error, was (%d) should be 5", error)
+  }
+
+}
 
 func TestParity (t *testing.T) {
  

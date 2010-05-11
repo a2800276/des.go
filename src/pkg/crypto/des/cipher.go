@@ -1,7 +1,10 @@
 
 
 package des
-
+import (
+  "os"
+  "strconv"
+)
 type DES struct{
   enc [] uint32
   dec [] uint32
@@ -15,38 +18,85 @@ type DES3 struct {
   des1, des2, des3 *DES
 }
 
+type KeySizeError   int
+type KeyParityError int
+
+func (k KeySizeError)   String() string {
+	return "crypto/des: invalid key size " + strconv.Itoa(int(k))
+}
+func (k KeyParityError) String() string {
+	return "crypto/des: invalid key parity in byte " + strconv.Itoa(int(k))
+}
+
+
 // This contains the necessary function to comply with the Cipher interface.
 
 
-func NewDESCipher(key []byte) (*DES) {
-  /* TODO sanity check, error handling, key parity */
+func NewDESCipher(key []byte) (*DES, os.Error) {
+
+  if nil == key || 8 != len(key) {
+    return nil, KeySizeError(len(key))
+  }
+
+  if which, ok := checkParityBytes(key); ok != true {
+    return nil, KeyParityError(which)
+  }
+
   c := &DES{make([]uint32, 32), make([]uint32, 32)}
   deskey(key, c)
-  return c
+
+  return c, nil
 }
-func NewDES2Cipher(key []byte) (*DES2) {
-  des3 := newDES3Cipher(key)
-  return &DES2{des3}
+func NewDES2Cipher(key []byte) (*DES2, os.Error) {
+  if nil == key || 16 != len(key) {
+    return nil, KeySizeError(len(key))
+  }
+
+  if des3, err := newDES3Cipher(key); err != nil {
+    return nil, err
+  } else {
+    return &DES2{des3}, nil
+  }
+  return nil, nil
 }
 
-func NewDES3Cipher(key []byte) (*DES3) {
+func NewDES3Cipher(key []byte) (*DES3, os.Error) {
+   if nil == key || 24 != len(key) {
+    return nil, KeySizeError(len(key))
+  }
+
   return newDES3Cipher(key)
 }
 
-func newDES3Cipher(key []byte) (*DES3) {
+func newDES3Cipher(key []byte) (*DES3, os.Error) {
+
+  var des  [3]*DES
+  var keys [3][]byte
+
   // this creates both 2DES and 3DES ciphers,
   // key length & parity checks are performed in the
   // public methods.
-  c1:=NewDESCipher(key[0:8])
-  c2:=NewDESCipher(key[8:16])
-  var c3 *DES
-  if len(key) > 16 {
-    c3=NewDESCipher(key[16:])
-  } else {
-    c3=NewDESCipher(key[0:8])
+
+  for i := range(keys) {
+    switch (i) {
+      case 0: keys[0] = key[0:8]
+      case 1: keys[1] = key[8:16]
+      case 2:
+        if len(key) == 16 {
+          keys[2] = keys[0]
+        } else {
+          keys[2] = key[16:]
+        }
+      // default panic?
+    } //switch
+
+    var err os.Error
+    if des[i], err = NewDESCipher(keys[i]); err != nil {
+      return nil, err
+    }
   }
 
-  return &DES3{c1,c2,c3}
+  return &DES3{des[0],des[1], des[2]}, nil
 
 }
 
