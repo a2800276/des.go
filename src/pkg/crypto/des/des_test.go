@@ -2,7 +2,9 @@ package des
 
 import (
   "testing"
-  "fmt"
+  //"fmt"
+  "crypto/subtle"
+  "crypto/block"
 )
 
 /*
@@ -29,33 +31,138 @@ var (
 
   oddParityBytes = []byte {0x01, 0x02, 0x04, 0x07, 0xfe}
   evenParityBytes = []byte {0x00, 0x03, 0x05, 0x06, 0xff}
+
+  // Bulk Tests
+  //des1keys = [][]byte{}
+  //plainTextBlocks = [][]byte{}
+  //des1ciphers = [][][]byte{}
+ 
+
 )
 
 func TestEnc(t *testing.T){
   c, _ := NewDESCipher(key)
   result := make([]byte,8)
   c.Encrypt(plain, result)
-  for _,b := range result {
-    fmt.Printf("%02X ", b)
+
+  if 1 != subtle.ConstantTimeCompare(result,ciphr) {
+    t.Errorf("1 DES Enc failed.")
   }
-  
-  println()
 
   c2,_ := NewDES2Cipher(key2)
   c2.Encrypt(plain, result)
-   for _,b := range result {
-    fmt.Printf("%02X ", b)
-  }
 
-  println()
+  if 1 != subtle.ConstantTimeCompare(result,ciphr2) {
+    t.Errorf("2 DES Enc failed.")
+  }
 
   c3,_ := NewDES3Cipher(key3)
   c3.Encrypt(plain, result)
-   for _,b := range result {
-    fmt.Printf("%02X ", b)
+
+  if 1 != subtle.ConstantTimeCompare(result,ciphr3) {
+    t.Errorf("3 DES Enc failed.")
   }
 }
-func TestDec(t *testing.T){}
+
+// fairly braindead stress test, just to make sure ...
+func TestEncBulk(t *testing.T) {
+  for i, key := range(des1keys) {
+    if cipher, err := NewDESCipher(key); nil == err {
+        testEncBulk(t, i, cipher, des1ciphers)
+    } else {
+      t.Errorf("1 DES #%d failed with err: %s", i, err)
+    }
+  }
+
+  for i, key := range(des2keys) {
+    if cipher, err := NewDES2Cipher(key); nil == err {
+      testEncBulk(t, i, cipher, des2ciphers)
+    } else {
+      t.Errorf("2 DES #%d failed with err: %s", i, err)
+    }
+  }
+  // yes, generics WOULD be nice...
+  for i, key := range(des3keys) {
+    if cipher, err := NewDES3Cipher(key); nil == err {
+      testEncBulk(t, i, cipher, des3ciphers)
+    } else {
+      t.Errorf("3 DES #%d failed with err: %s", i, err)
+    }
+  }
+}
+
+// fairly braindead stress test, just to make sure ...
+func TestDecBulk(t *testing.T) {
+  for i, key := range(des1keys) {
+    if cipher, err := NewDESCipher(key); nil == err {
+        testDecBulk(t, i, cipher, des1ciphers)
+    } else {
+      t.Errorf("1 DES #%d failed with err: %s", i, err)
+    }
+  }
+  for i, key := range(des2keys) {
+    if cipher, err := NewDES2Cipher(key); nil == err {
+      testDecBulk(t, i, cipher, des2ciphers)
+    } else {
+      t.Errorf("2 DES #%d failed with err: %s", i, err)
+    }
+  }
+  // yes, generics WOULD be nice...
+  for i, key := range(des3keys) {
+    if cipher, err := NewDES3Cipher(key); nil == err {
+      testDecBulk(t, i, cipher, des3ciphers)
+    } else {
+      t.Errorf("3 DES #%d failed with err: %s", i, err)
+    }
+  }
+
+}
+
+
+func testEncBulk(t *testing.T, kIdx int, cipher block.Cipher, cipherTexts [][][]byte) {
+  result := make([]byte,8)
+  for j, plain := range(plainTextBlocks) {
+    cipher.Encrypt(plain,result)
+    if 1 != subtle.ConstantTimeCompare(result, cipherTexts[j][kIdx]) {
+      t.Errorf("? DES #%d encryption failed with plaintext #%d", j, kIdx)
+    }
+  }
+}
+
+func testDecBulk(t *testing.T, kIdx int, cipher block.Cipher, cipherTexts [][][]byte) {
+  result := make([]byte,8)
+  for j, plain := range(plainTextBlocks) {
+    cipher.Decrypt(cipherTexts[j][kIdx], result)
+    if 1 != subtle.ConstantTimeCompare(result, plain) {
+      t.Errorf("? DES #%d decrypt failed with plaintext #%d", j, kIdx)
+    }
+  }
+}
+
+
+func TestDec(t *testing.T){
+  c, _ := NewDESCipher(key)
+  result := make([]byte,8)
+  c.Decrypt(ciphr, result)
+
+  if 1 != subtle.ConstantTimeCompare(result,plain) {
+    t.Errorf("1 DES Dec failed.")
+  }
+
+  c2,_ := NewDES2Cipher(key2)
+  c2.Decrypt(ciphr2, result)
+
+  if 1 != subtle.ConstantTimeCompare(result,plain) {
+    t.Errorf("2 DES Dec failed.")
+  }
+
+  c3,_ := NewDES3Cipher(key3)
+  c3.Decrypt(ciphr3, result)
+
+  if 1 != subtle.ConstantTimeCompare(result,plain) {
+    t.Errorf("3 DES Dec failed.")
+  }
+}
 
 
 func TestSanity (t *testing.T) {

@@ -1,0 +1,12 @@
+Generate a bunch of random test data via openssl and ruby.
+`ruby make_test_data.rb > ../pkg/crypto/des/des_data_test.go`
+
+
+Currently generate 20 random (corrected for parity) keys each 
+for 1,2 and 3DES, as well as 20 DES blocks (8 byte) of data, plus 
+some corner case data (all 0x00, 0xff, 0x01, 0x0f and 0xf0)
+and formats this data in `go`.
+
+`grep` for 20 in the script and it should be self-explanatory how
+to generate even more stresstest keys and data. I don't see the
+point myself...

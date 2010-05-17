@@ -1,5 +1,6 @@
 * weak keys
-* more testing
+* more testing (chaining modes)
+* benchmark
 * package
 * change from 2 * 32 bit based code to using 64 bit datatypes for 48/56 bit datastructures
 * retail mac? key wrapping? what other ancillary functions?
