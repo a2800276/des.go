@@ -6,3 +6,4 @@
 *.out
 impls/*
 *.swo
+src/pkg/crypto/des/_testmain.go
