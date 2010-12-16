@@ -43,21 +43,21 @@ var (
 func TestEnc(t *testing.T){
   c, _ := NewDESCipher(key)
   result := make([]byte,8)
-  c.Encrypt(plain, result)
+  c.Encrypt(result, plain)
 
   if 1 != subtle.ConstantTimeCompare(result,ciphr) {
     t.Errorf("1 DES Enc failed.")
   }
 
   c2,_ := NewDES2Cipher(key2)
-  c2.Encrypt(plain, result)
+  c2.Encrypt(result, plain)
 
   if 1 != subtle.ConstantTimeCompare(result,ciphr2) {
     t.Errorf("2 DES Enc failed.")
   }
 
   c3,_ := NewDES3Cipher(key3)
-  c3.Encrypt(plain, result)
+  c3.Encrypt(result, plain)
 
   if 1 != subtle.ConstantTimeCompare(result,ciphr3) {
     t.Errorf("3 DES Enc failed.")
@@ -122,7 +122,7 @@ func TestDecBulk(t *testing.T) {
 func testEncBulk(t *testing.T, kIdx int, cipher block.Cipher, cipherTexts [][][]byte) {
   result := make([]byte,8)
   for j, plain := range(plainTextBlocks) {
-    cipher.Encrypt(plain,result)
+    cipher.Encrypt(result, plain)
     if 1 != subtle.ConstantTimeCompare(result, cipherTexts[j][kIdx]) {
       t.Errorf("? DES #%d encryption failed with plaintext #%d", j, kIdx)
     }
@@ -132,7 +132,7 @@ func testEncBulk(t *testing.T, kIdx int, cipher block.Cipher, cipherTexts [][][]
 func testDecBulk(t *testing.T, kIdx int, cipher block.Cipher, cipherTexts [][][]byte) {
   result := make([]byte,8)
   for j, plain := range(plainTextBlocks) {
-    cipher.Decrypt(cipherTexts[j][kIdx], result)
+    cipher.Decrypt(result, cipherTexts[j][kIdx])
     if 1 != subtle.ConstantTimeCompare(result, plain) {
       t.Errorf("? DES #%d decrypt failed with plaintext #%d", j, kIdx)
     }
@@ -143,21 +143,21 @@ func testDecBulk(t *testing.T, kIdx int, cipher block.Cipher, cipherTexts [][][]
 func TestDec(t *testing.T){
   c, _ := NewDESCipher(key)
   result := make([]byte,8)
-  c.Decrypt(ciphr, result)
+  c.Decrypt(result, ciphr)
 
   if 1 != subtle.ConstantTimeCompare(result,plain) {
     t.Errorf("1 DES Dec failed.")
   }
 
   c2,_ := NewDES2Cipher(key2)
-  c2.Decrypt(ciphr2, result)
+  c2.Decrypt(result, ciphr2)
 
   if 1 != subtle.ConstantTimeCompare(result,plain) {
     t.Errorf("2 DES Dec failed.")
   }
 
   c3,_ := NewDES3Cipher(key3)
-  c3.Decrypt(ciphr3, result)
+  c3.Decrypt(result, ciphr3)
 
   if 1 != subtle.ConstantTimeCompare(result,plain) {
     t.Errorf("3 DES Dec failed.")
