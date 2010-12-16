@@ -165,6 +165,19 @@ func TestDec(t *testing.T){
 }
 
 
+func TestDec3IsNonMutating (t *testing.T){
+  c3,_ := NewDES3Cipher(key3)
+  enc := make([]byte,8)
+  copy(enc, ciphr3)
+  result := make([]byte,8)
+  c3.Decrypt(result, enc)
+
+  if 1 != subtle.ConstantTimeCompare(enc,ciphr3) {
+    t.Errorf("3 DES Dec mutated the cipher string")
+  }
+}
+
+
 func TestSanity (t *testing.T) {
   if _, error := NewDESCipher(nil); error == nil {
     t.Errorf("nil key should result in error")
