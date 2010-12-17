@@ -122,31 +122,31 @@ func (c *DES3) BlockSize() int {
 // Src and dst may point at the same memory, i.e. this
 // function works in place, though you probably wouldn't
 // use it directly anyhow.
-func (c *DES) Encrypt(src, dst []byte) {
-  desfunc(src, dst, c.enc)
+func (c *DES) Encrypt(dst, src []byte) {
+  desfunc(dst, src, c.enc)
 }
-func (c *DES3) Encrypt(src, dst []byte) {
-  desfunc(src, dst, c.des1.enc)
+func (c *DES3) Encrypt(dst, src []byte) {
+  desfunc(dst, src, c.des1.enc)
   desfunc(dst, dst, c.des2.dec)
   desfunc(dst, dst, c.des3.enc)
 }
-func (c *DES2) Encrypt(src, dst []byte) {
-  c.des3.Encrypt(src, dst)
+func (c *DES2) Encrypt(dst, src []byte) {
+  c.des3.Encrypt(dst, src)
 }
 
 
 // Decrypt decrypts the first block in src into dst.
 // Src and dst may point at the same memory.
-func (c *DES) Decrypt(src, dst []byte) {
-  desfunc(src, dst, c.dec)
+func (c *DES) Decrypt(dst, src []byte) {
+  desfunc(dst, src, c.dec)
 }
-func (c *DES3) Decrypt(src, dst []byte) {
-  desfunc(src, dst, c.des3.dec)
+func (c *DES3) Decrypt(dst, src []byte) {
+  desfunc(dst, src, c.des3.dec)
   desfunc(dst, dst, c.des2.enc)
   desfunc(dst, dst, c.des1.dec)
 }
 
-func (c *DES2) Decrypt(src, dst []byte) {
-  c.des3.Decrypt(src, dst)
+func (c *DES2) Decrypt(dst, src []byte) {
+  c.des3.Decrypt(dst, src)
 }
 

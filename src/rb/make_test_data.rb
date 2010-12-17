@@ -1,5 +1,5 @@
 require "test_data_basics"
-
+require 'openssl'
 # create 100 random keys
 #        100 random plain texts, one block long
 #
@@ -23,7 +23,6 @@ plain << [0x0f] * 8
 plain << [0xff] * 8
 
 
-require 'openssl'
 
 def des key, ptext
     _des("des", key, ptext)
@@ -74,10 +73,6 @@ plain.each_with_index { |ptext, i|
   }
 }
 
-def print_go_slice array 
-  _array = array.map{|b| "0x%02x" % b}.join(",")
-  "[]byte {#{_array}}"
-end
 
 
 puts "package des"

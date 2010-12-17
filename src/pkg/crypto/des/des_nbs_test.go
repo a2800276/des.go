@@ -235,13 +235,13 @@ func TestNBS (t *testing.T) {
 //    t.Errorf("%d key: %p plain: %p ciphr %p result: %p\n", i, &key, &plain, &ciphr, &result)
 //    t.Errorf("%d\n", des.BlockSize())
 
-    des.Encrypt(plain, result)
+    des.Encrypt(result, plain)
 //    t.Errorf("%d key: %x plain: %x ciphr %x result: %x\n", i, key, plain, ciphr, result)
     if (!same(result, ciphr)) {
       t.Errorf("enc %d: nbs\nhave %x\nwant %x", i, result, ciphr)
     }
 
-    des.Decrypt(ciphr, result)
+    des.Decrypt(result, ciphr)
     if (!same(result, plain)) {
       t.Errorf("dec %d: nbs\nhave %x\nwant %x", i, result, plain)
     }

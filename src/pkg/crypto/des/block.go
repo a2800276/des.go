@@ -4,7 +4,7 @@ import (
   "fmt"
 )
 
-func desfunc (src, dst []byte, key [] uint32 ) {
+func desfunc (dst, src []byte, key [] uint32 ) {
   var left, right, work uint32;
   // DEBUG
   //dumpRKeys("final keys", key);

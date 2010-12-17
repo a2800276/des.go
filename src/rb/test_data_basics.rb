@@ -47,3 +47,14 @@ def random_bytes i
   }
   result
 end
+
+def print_go_slice array 
+  _array = array.map{|b| 
+    if (0 == b)
+      "0x00"
+    else
+      "0x%02x" % b
+    end
+  }.join(",")
+  "[]byte {#{_array}}"
+end
